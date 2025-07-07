@@ -1,0 +1,91 @@
+<div id="sidebar-id" class="sidebar col-md-3">
+  <a class="sidebar-brand logo" routerLink="/" (click)="collapseNavbar()">
+    <img src="../../../content/images/logo-rang-dong.webp" alt="Logo-RangDong" class="sidebar-img" />
+  </a>
+
+  <button class="sidebar-collapse-btn" (click)="toggleSidebar()">
+    <fa-icon icon="bars"></fa-icon>
+  </button>
+  <div>
+    <nav>
+      <ul id="navbar-nav" class="navbar-nav">
+        <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <a class="dropdown-item" routerLink="/" (click)="collapseNavbar()">
+            <span>
+              <fa-icon icon="home"></fa-icon>
+              <span class="dropdown-item-span">Trang chủ</span>
+            </span>
+          </a>
+        </li>
+        <li *jhiHasAnyAuthority="[
+            'ROLE_ISO_ADMIN',
+            'ROLE_ISO_CREATE_PLAN',
+            'ROLE_ISO_CHECK',
+            'ROLE_ISO_CREATE_FIX_PLAN',
+            'ROLE_ISO_VIEW_PLAN'
+          ]" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <a class="dropdown-item" routerLink="/plan" href="javascript:void(0);" id="entity-menu" data-cy="entity">
+            <span>
+              <fa-icon icon="asterisk"></fa-icon>
+              <span class="dropdown-item-span">Quản lý kế hoạch</span>
+            </span>
+          </a>
+        </li>
+        <li *jhiHasAnyAuthority="[
+            'ROLE_ISO_ADMIN',
+            'ROLE_ISO_CREATE_PLAN',
+            'ROLE_ISO_CHECK',
+            'ROLE_ISO_CREATE_FIX_PLAN',
+            'ROLE_ISO_VIEW_PLAN'
+          ]" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <a class="dropdown-item" routerLink="/plan" href="javascript:void(0);" id="entity-menu" data-cy="entity">
+            <span>
+              <fa-icon icon="asterisk"></fa-icon>
+              <span class="dropdown-item-span">Quản lý kế hoạch</span>
+            </span>
+          </a>
+        </li>
+        <li *jhiHasAnyAuthority="['ROLE_ISO_ADMIN', 'ROLE_ISO_CREATE_FIX_PLAN', 'ROLE_ISO_CHECK']">
+          <a class="dropdown-item" routerLink="/plan-group" routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+            <fa-icon icon="plus" [fixedWidth]="true"></fa-icon>
+            <span class="dropdown-item-span">Quản lý kế hoạch gộp</span>
+          </a>
+        </li>
+        <li ngbDropdown class="nav-item dropdown pointer" display="dynamic" routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }">
+          <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="account-menu"
+            data-cy="accountMenu">
+            @if (!account()?.imageUrl) {
+            <span>
+              <fa-icon icon="user"></fa-icon>
+              <span jhiTranslate="global.menu.account.main" class="dropdown-item-span">Tài khoản</span>
+            </span>
+            } @else {
+            <span>
+              <img [src]="account()!.imageUrl" class="profile-image rounded-circle" alt="Avatar" />
+            </span>
+            }
+          </a>
+          <ul class="dropdown-menu" ngbDropdownMenu aria-labelledby="account-menu">
+            @if (account() !== null) {
+            <li>
+              <a class="dropdown-item" (click)="logout()" id="logout" data-cy="logout">
+                <fa-icon icon="sign-out-alt" [fixedWidth]="true"></fa-icon>
+                <span jhiTranslate="global.menu.account.logout">Đăng xuất</span>
+              </a>
+            </li>
+            } @else {
+            <li>
+              <a class="dropdown-item" (click)="login()" id="login" data-cy="login">
+                <fa-icon icon="sign-in-alt" [fixedWidth]="true"></fa-icon>
+                <span jhiTranslate="global.menu.account.login">Đăng nhập</span>
+              </a>
+            </li>
+            }
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>

@@ -1,0 +1,318 @@
+<div>
+  <h2 id="page-heading" data-cy="PlanHeading">
+    <span>Kế hoạch</span>
+    <button *jhiHasAnyAuthority="['ROLE_ISO_ADMIN', 'ROLE_ISO_CREATE_PLAN']" id="jh-create-entity"
+      data-cy="entityCreateButton" class="btn btn-primary jh-create-entity create-plan" [routerLink]="['/plan/new']">
+      <fa-icon icon="plus"></fa-icon>
+      <span>Thêm mới</span>
+    </button>
+  </h2>
+
+  <p-table [value]="planDetailResults" styleClass="p-datatable-gridlines" [rows]="selectedPageSize" [paginator]="true"
+    [rowsPerPageOptions]="pageSizeOptions" (onPage)="onPageSizeChange($event)" [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [responsive]="true"
+    [rowHover]="true" [rowsPerPageOptions]="[5, 10, 20]">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Tuỳ chọn</th>
+        <th style="min-width: 150px">Tên kế hoạch</th>
+        <th style="min-width: 100px">Tần suất</th>
+        <th style="min-width: 170px">Thời gian bắt đầu</th>
+        <th style="min-width: 172px">Thời gian kết thúc</th>
+        <th style="min-width: 150px">Thời gian tạo</th>
+        <th style="min-width: 110px">Trạng thái</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th>
+          <p-columnFilter type="text" field="name" placeholder="Search"></p-columnFilter>
+        </th>
+        <th></th>
+        <th>
+          <p-columnFilter type="date" field="timeStart" placeholder="Search" [matchMode]="'dateIs'"
+            [showClearButton]="true" [showApplyButton]="true">
+          </p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter type="date" field="timeEnd" placeholder="Search" [matchMode]="'dateIs'"
+            [showClearButton]="true" [showApplyButton]="true">
+          </p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter type="date" field="createdAt" placeholder="Search" [matchMode]="'dateIs'"
+            [showClearButton]="true" [showApplyButton]="true">
+          </p-columnFilter>
+        </th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowNode let-expanded="expanded" let-index="rowIndex">
+      <tr>
+        <td>
+          <div class="action-buttons my-1">
+            <p-button *jhiHasAnyAuthority="['ROLE_ISO_ADMIN', 'ROLE_ISO_CREATE_PLAN']" icon="pi pi-pencil"
+              aria-label="Edit" [rounded]="true" styleClass="p-button-rounded p-button-info p-button-sm mr-2"
+              [severity]="'warning'" [routerLink]="['/plan', rowNode.id, 'edit']" title="Chỉnh sửa" />
+            <p-button icon="pi pi-eye" aria-label="View" styleClass="p-button-rounded p-button-info p-button-sm mr-2"
+              [severity]="'info'" title="Xem chi tiết" (onClick)="showListReport(rowNode)" />
+            <p-button *jhiHasAnyAuthority="['ROLE_ISO_ADMIN', 'ROLE_ISO_CHECK']" icon="pi pi-file-plus"
+              aria-label="Gross" styleClass="p-button-rounded p-button-info p-button-sm mr-2" [severity]="'help'"
+              title="Gộp" [routerLink]="['/plan', rowNode.id, 'gross-script']" />
+          </div>
+          <div class="action-buttons my-1">
+            <p-button *jhiHasAnyAuthority="['ROLE_ISO_ADMIN', 'ROLE_ISO_CREATE_FIX_PLAN', 'ROLE_ISO_CHECK']"
+              icon="pi pi-wrench" aria-label="Report" [rounded]="true"
+              [routerLink]="['/plan', rowNode.id, 'inspection-plan']"
+              styleClass="p-button-rounded p-button-info p-button-sm mr-2" [severity]="'danger'"
+              title="Khai báo kế hoạch khắc phục" />
+            <p-button *jhiHasAnyAuthority="['ROLE_ISO_ADMIN', 'ROLE_ISO_CREATE_PLAN']" icon="pi pi-trash"
+              aria-label="Delete" styleClass="p-button-rounded p-button-info p-button-sm mr-2" [severity]="'danger'"
+              (onClick)="delete(rowNode)" title="Xoá" />
+          </div>
+        </td>
+        <td class="text-ellipsis" [ngbTooltip]="rowNode.name" container="body" placement="top-start">{{ rowNode.name }}
+        </td>
+        <td>{{ rowNode.frequency }}</td>
+        <td>{{ rowNode.timeStart | date: 'dd/MM/yyyy' }}</td>
+        <td>{{ rowNode.timeEnd | date: 'dd/MM/yyyy' }}</td>
+        <td>{{ rowNode.createdAt | date: 'dd/MM/yyyy' }}</td>
+        <td><p-tag [value]="rowNode.status" [severity]="getSeverity(rowNode.status)" /></td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog header="Danh sách BBKT" [resizable]="false" [modal]="true" [maximizable]="true" appendTo="body"
+  [(visible)]="dialogListReportByPlan" [style]="{ width: '100vw', height: '100vh', top: '0', left: '0' }">
+  <div class="col-container">
+    <div class="col-m4-25 col-container-child">
+      <label for="">Tên kế hoạch</label>
+      <input type="text" class="inp-style" name="name" [(ngModel)]="selectedPlan.name" readonly />
+    </div>
+    <div class="col-m4-25 col-container-child">
+      <label for="">Trạng thái</label>
+      <input type="text" class="inp-style" name="satuts" [(ngModel)]="selectedPlan.status" readonly />
+    </div>
+  </div>
+
+  <p-table [value]="listReportByPlan" [paginator]="true" [rows]="100" [responsive]="true"
+    styleClass="p-datatable-gridlines" [rowsPerPageOptions]="[5, 10, 20]" [autoLayout]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="border text-center">Tuỳ chọn</th>
+        <th class="border text-center" style="padding: 0;min-width: 150px">Tên BBKT</th>
+        <th class="border text-center" style="padding: 0;min-width: 150px">Đối tượng KT</th>
+        <th class="border text-center" style="padding: 0;min-width: 90px">Số lần KT</th>
+        <th class="border text-center" style="padding: 0;min-width: 40px">Điểm</th>
+        <th class="border text-center" style="padding: 0;min-width: 90px">Tổng điểm</th>
+        <th class="border text-center" style="padding: 0;min-width: 30px">NC</th>
+        <th class="border text-center" style="padding: 0;min-width: 30px">LY</th>
+        <th class="border text-center" style="padding: 0;min-width: 110px">SL không đạt</th>
+        <th class="border text-center" style="padding: 0;min-width: 150px">Người KT</th>
+        <th class="border text-center" style="padding: 0;min-width: 110px">Trạng thái</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-detail let-index="rowIndex">
+      <tr>
+        <td class="border text-center">
+          <div class="action-buttons my-1">
+            <p-button *jhiHasAnyAuthority="['ROLE_ISO_ADMIN', 'ROLE_ISO_CHECK']" icon="pi pi-check" aria-label="Check"
+              styleClass="p-button-rounded p-button-info p-button-sm mr-2" [severity]="'success'" title="Đánh giá"
+              [rounded]="true" (onClick)="showDialogCheckPlan(selectedPlan, index)" />
+            <p-button *jhiHasAnyAuthority="['ROLE_ISO_ADMIN', 'ROLE_ISO_CREATE_FIX_PLAN', 'ROLE_ISO_CHECK']"
+              icon="pi pi-wrench" aria-label="Report" [rounded]="true"
+              [routerLink]="['/plan', detail.id, 'inspection-report']"
+              styleClass="p-button-rounded p-button-info p-button-sm mr-2" [severity]="'danger'"
+              title="Khai báo kế hoạch khắc phục" />
+          </div>
+          <div class="action-buttons my-1">
+            <p-button *jhiHasAnyAuthority="['ROLE_ISO_ADMIN', 'ROLE_ISO_CREATE_PLAN']" icon="pi pi-trash"
+              aria-label="Delete" styleClass="p-button-rounded p-button-info p-button-sm mr-2" [severity]="'danger'"
+              title="Xoá" />
+          </div>
+        </td>
+        <td class="border text-center text-ellipsis" [ngbTooltip]="detail.name" container="body" placement="top-start">
+          {{ detail.name }}</td>
+        <td class="border text-center">{{ detail.testOfObject }}</td>
+        <td class="border text-center">{{ detail.sumOfAudit }}</td>
+        <td class="border text-center">{{ detail.scoreScale }}</td>
+        <td class="border text-center">{{ getTotalPoit(detail) }}</td>
+        <td class="border text-center">{{ detail.sumOfNc }}</td>
+        <td class="border text-center">{{ detail.sumOfLy }}</td>
+        <td class="border text-center">{{ detail.sumOfFail }}</td>
+        <td class="border text-center">{{ detail.checker }}</td>
+        <td class="border text-center"><p-tag [value]="detail.status" [severity]="getSeverity(detail.status)" /></td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
+
+<p-dialog header="Đánh giá BBKT" [resizable]="false" [modal]="true" [maximizable]="true" appendTo="body"
+  [(visible)]="dialogCheckPlan" [style]="{ width: '100%' }" [contentStyle]="{ height: '100%' }">
+  <div class="col-container">
+    <div class="col-m4-25 col-container-child">
+      <label for="">Tên BBKT</label>
+      <input type="text" class="inp-style" name="name" [(ngModel)]="report.name" readonly />
+    </div>
+    <div class="col-m4-25 col-container-child">
+      <label for="">Trạng thái</label>
+      <input type="text" class="inp-style" name="satuts" [(ngModel)]="report.status" readonly />
+    </div>
+  </div>
+  <div class="d-flex" style="justify-content: flex-end !important">
+    <div class="custom-button-apply ms-3">
+      <p-button label="Thêm dữ liệu" icon="pi pi-check" (onClick)="addRowPlanEvaluation()"
+        styleClass="p-button-rounded p-button-info p-button-sm mr-2 gross-btn" [raised]="true" [severity]="'info'" />
+    </div>
+  </div>
+
+  <p-table [value]="planEvaluations" [paginator]="true" [rows]="100" [responsive]="true"
+    styleClass="p-datatable-gridlines" [rowsPerPageOptions]="[5, 10, 20]" [autoLayout]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="text-center border">Tên kế hoạch</th>
+        <th class="text-center border">Người kiểm tra</th>
+        <th class="text-center border">Ngày kiểm tra</th>
+        <th class="text-center border">Tuỳ chọn</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-index="rowIndex">
+      <tr>
+        <td class="text-center border">
+          <input type="text" [(ngModel)]="item.name" required class="form-control"
+            [style.borderColor]="!item.name || isNameDuplicate[index] ? '#f44336' : ''"
+            [style.borderLeft]="!item.name || isNameDuplicate[index] ? '3px solid #e74c3c' : ''"
+            (ngModelChange)="duplicateNameValidator(item.name, index)" />
+          <div class="error-message">
+            <span *ngIf="isNameDuplicate[index]">Tên này đã tồn tại</span>
+          </div>
+        </td>
+        <td class="text-center border">
+          {{ report.checker }}
+        </td>
+        <td class="text-center border">
+          <p-calendar inputId="checkDate" [(ngModel)]="item.checkDate" [minDate]="minSelectableDate"
+            [maxDate]="maxSelectableDate" required class="form-control" appendTo="body"
+            dateFormat="dd/mm/yy"></p-calendar>
+        </td>
+        <td class="text-center border">
+          <div class="action-buttons mx-1">
+            <p-button icon="pi pi-check" aria-label="Check" styleClass="p-button-rounded p-button-info p-button-sm mr-2"
+              [severity]="'success'" (onClick)="showDialogCheckPlanChild(item)"
+              [disabled]="!item.name || !item.checkDate || disableSaveCheckDate[index] || isNameDuplicate[index] ||  !(report.checker != account.login || hasAnyAuthority(['ROLE_ISO_ADMIN']))" />
+            <p-button icon="pi pi-trash" aria-label="Delete"
+              styleClass="p-button-rounded p-button-info p-button-sm mr-2" [severity]="'danger'" title="Xoá"
+              (onClick)="deletePlanChild(planEvaluations, index)" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <ng-template pTemplate="footer">
+    <div class="action-buttons">
+      <p-button label="Huỷ" icon="pi pi-ban" (onClick)="dialogCheckPlan = false"
+        styleClass="p-button-rounded p-button-info p-button-sm mr-2 gross-btn" severity="danger" />
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog header="Nội dung kiểm tra BB" [resizable]="false" [modal]="true" [maximizable]="true" appendTo="body"
+  [(visible)]="dialogCheckPlanChild" [style]="{ width: '100%' }" [contentStyle]="{ height: '100%' }">
+  <p-table paginator="true" [rows]="100" [responsive]="true" styleClass="p-datatable-gridlines"
+    [rowsPerPageOptions]="[5, 10, 20]" [autoLayout]="true" [value]="planGrDetail">
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="text-center border" style="padding: 0;">Nhóm tiêu chí</th>
+        <th class="text-center border" style="padding: 0;">Tên tiêu chí</th>
+        <th class="text-center border" style="padding: 0;">Tần suất</th>
+        <th class="text-center border" style="padding: 0;">Đánh giá</th>
+        <th class="text-center border" style="padding: 0;">Nội dung đánh giá</th>
+        <th class="text-center border" style="padding: 0;">Hình ảnh đánh giá</th>
+        <th class="text-center border" style="padding: 0;">Không đánh giá</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item let-index="rowIndex">
+      <tr>
+        <td class="text-center border" style="padding: 0;">{{ item.criterialGroupName }}</td>
+        <td class="text-center border" style="padding: 0;">{{ item.criterialName }}</td>
+        <td class="text-center border" style="padding: 0;">{{ item.frequency }}</td>
+        <td class="text-center border" style="padding: 0;">
+          <select [(ngModel)]="item.result" name="report.result" [disabled]="item.hasEvaluation == 0">
+            <option *ngFor="let item1 of listEvalReports" [value]="item1.name">{{ item1.name }}</option>
+          </select>
+        </td>
+        <td class="text-center border" style="padding: 0;">
+          <input type="text" [(ngModel)]="item.note" [disabled]="item.hasEvaluation == 0"
+            (click)="openNoteDialog(item, index)" />
+        </td>
+        <td class="text-center border" style="padding: 0;">
+          <p-button (click)="showDialogUpLoad(item, index)" label="Attach files" [disabled]="item.hasEvaluation == 0" />
+          <p-dialog header="Upload Files" [modal]="true" [(visible)]="dialogVisibility[index]"
+            [style]="{ width: '50rem' }" [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [maximizable]="true">
+            <ng-container *ngIf="selectedData">
+              <p-fileUpload name="files" [url]="''" [multiple]="true" accept="image/*" maxFileSize="1000000"
+                mode="advanced" [auto]="false" [customUpload]="true" preview="true"
+                (onSelect)="onFileSelect($event, selectedData, index)" (onClear)="onClear(selectedData)"
+                (onRemove)="removeImg($event, selectedData)" [showUploadButton]="false">
+                <ng-template pTemplate="empty">
+                  <div>Drag and drop files to here to upload.</div>
+                </ng-template>
+                <ng-template pTemplate="content">
+                  <div *ngFor="let fileName of selectedData.image">
+                    <div *ngIf="!imageLoadErrors.has(fileName)"
+                      style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 1rem; align-items: center">
+                      <div style="grid-column: span 4">
+                        <img [src]="'content/images/bbkt/' + fileName + '?t=' + getTimestamp()"
+                          (error)="onImageError(fileName)" alt="Image thumbnail" style="width: 100%"
+                          class="thumbnail-image" />
+                      </div>
+                      <div style="grid-column: span 4">
+                        <div class="file-name">{{ fileName }}</div>
+                      </div>
+                      <div style="grid-column: span 4">
+                        <button type="button" (click)="deleteFile(fileName, selectedData)"
+                          class="p-button p-button-icon-only p-button-text p-button-danger p-button-sm">
+                          <span class="pi pi-times"></span>
+                        </button>
+                      </div>
+                      <br />
+                    </div>
+                  </div>
+                </ng-template>
+              </p-fileUpload>
+            </ng-container>
+            <ng-template pTemplate="footer">
+              <div class="flex justify-content-end">
+                <p-button label="Xong" icon="pi pi-check" styleClass="p-button-text"
+                  (click)="dialogVisibility[index] = false"></p-button>
+              </div>
+            </ng-template>
+          </p-dialog>
+        </td>
+        <td class="text-center border" style="padding: 0;">
+          <p-checkbox [binary]="true" [(ngModel)]="item.hasEvaluation" [trueValue]="0" [falseValue]="1"></p-checkbox>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <ng-template pTemplate="footer">
+    <div class="action-buttons">
+      <p-button label="Huỷ" icon="pi pi-ban" (onClick)="dialogCheckPlanChild = false"
+        styleClass="p-button-rounded p-button-info p-button-sm mr-2 gross-btn" severity="danger" />
+      <p-button label="Lưu" icon="pi pi-save" (onClick)="savePlanGrAndDetail()"
+        styleClass="p-button-rounded p-button-info p-button-sm mr-2 gross-btn" severity="info" />
+    </div>
+  </ng-template>
+</p-dialog>
+<p-dialog header="Nhập nội dung đánh giá" [(visible)]="noteDialogVisible" [modal]="true" [style]="{ width: '90vw' }">
+  <ng-container *ngIf="selectedReport">
+    <textarea [(ngModel)]="selectedReport.note" rows="6" class="form-control" placeholder="Nhập nội dung..." autofocus
+      (keydown.enter)="handleEnter($event)"></textarea>
+  </ng-container>
+
+  <ng-template pTemplate="footer">
+    <button type="button" class="btn btn-danger" (click)="selectedReport.note = ''">Xóa</button>
+    <button type="button" class="btn btn-success" (click)="noteDialogVisible = false">Xong</button>
+  </ng-template>
+</p-dialog>
+<p-confirmDialog />
