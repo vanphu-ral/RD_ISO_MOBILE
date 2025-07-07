@@ -1,0 +1,272 @@
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+
+/* --- BASE STYLES (for desktop/larger screens) --- */
+.main-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 250px; /* Default width for desktop sidebar */
+  flex-shrink: 0;
+  background-color: #343a40; /* Your sidebar background color */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+  padding-top: 20px;
+
+  .sidebar-brand {
+    margin-bottom: 20px;
+  }
+  .sidebar-img {
+    width: 60px; /* Adjust logo size */
+    height: auto;
+  }
+  .sidebar-collapse-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  .navbar-nav {
+    list-style: none;
+    padding: 0;
+    width: 100%; /* Ensure nav list takes full sidebar width */
+    .nav-item {
+      width: 100%;
+      &.active {
+        background-color: rgba(255, 255, 255, 0.2); /* Highlight active item */
+      }
+      a {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        color: white;
+        text-decoration: none;
+        span {
+          display: flex;
+          align-items: center;
+          fa-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+          }
+          .dropdown-item-span {
+            white-space: nowrap;
+          }
+        }
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+      }
+    }
+  }
+  .dropdown-menu {
+    background-color: #495057; /* Darker dropdown for contrast */
+    li a {
+      color: white;
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+}
+
+#main {
+  flex-grow: 1;
+  padding: 15px;
+  overflow: hidden; /* Important for rotation */
+  display: flex;
+  flex-direction: column;
+  background-color: #e9ecef; /* Main content background */
+
+  .jh-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex-grow: 1;
+    overflow: auto; /* Allow content inside card to scroll */
+  }
+}
+
+/* ------------------------------------------- */
+/* Mobile Portrait Mode with Sidebar on Right and Rotated Main Content */
+/* ------------------------------------------- */
+
+@media screen and (max-width: 768px) and (orientation: portrait) {
+  .main-container {
+    flex-direction: row; /* Keep sidebar and main content side-by-side */
+    position: fixed; /* Fix to viewport */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    order: 2; /* Move sidebar to the right */
+    width: 60px; /* Make sidebar narrow for mobile */
+    height: 100vh; /* Occupy full height */
+    padding-top: 10px; /* Reduce padding */
+    padding-bottom: 10px;
+    overflow-y: auto; /* Allow sidebar to scroll if menu items are too many */
+
+    .sidebar-brand {
+      .sidebar-img {
+        width: 40px; /* Smaller logo */
+      }
+    }
+    .sidebar-collapse-btn {
+      display: none; /* Hide collapse button if sidebar is always small */
+    }
+
+    .navbar-nav {
+      .nav-item {
+        /* Align items vertically for narrow sidebar */
+        a {
+          flex-direction: column; /* Icon and text stack vertically */
+          justify-content: center;
+          align-items: center;
+          padding: 8px 0; /* Adjust padding */
+          fa-icon {
+            margin-right: 0; /* No margin between icon and text */
+            margin-bottom: 5px; /* Space between icon and text */
+            font-size: 1.5em; /* Make icons larger */
+          }
+          .dropdown-item-span {
+            font-size: 0.7em; /* Make text smaller */
+            text-align: center;
+          }
+        }
+      }
+      /* Adjust dropdown menu behavior if needed, maybe make it full-width modal */
+      .dropdown-menu {
+        position: fixed; /* Position dropdown relative to viewport */
+        left: auto;
+        right: 60px; /* Align with the main content area */
+        top: 0;
+        width: 200px; /* Fixed width for dropdown */
+        // Other styles for dropdown
+      }
+    }
+  }
+
+  #main {
+    order: 1; /* Keep main content on the left */
+    flex-grow: 1;
+    width: calc(100vw - 60px); /* Main content takes remaining width */
+    height: 100vh; /* Occupy full height */
+    padding: 0; /* Remove padding to maximize space for rotated content */
+
+    /* Apply rotation to the main content area */
+    transform-origin: top left; /* Pivot point for rotation */
+    transform: rotate(90deg) translateY(-100%) translateX(0); /* Rotate and position */
+    /*
+     * Explanation of transform:
+     * 1. `rotate(90deg)`: Rotates the element 90 degrees clockwise.
+     * 2. `translateY(-100%)`: After rotation, the 'height' becomes the 'width'.
+     * The element is now positioned vertically. `translateY(-100%)`
+     * moves it upwards to align its new 'top' with the top of its container.
+     * Use `vw` and `vh` values carefully. `translateY(-100vw)` might be needed if based on viewport.
+     * Let's re-evaluate based on the new dimensions.
+     *
+     * Corrected transform for main area:
+     * When you rotate an element 90deg clockwise with `transform-origin: top left;`
+     * - Its new top-left corner will be at the original top-left corner.
+     * - The element will essentially "fall" downwards and to the right.
+     * To bring it back into view and fill the space:
+     * You need to translate it upwards by its *new* width (which was its original height)
+     * and sometimes horizontally if the origin is not perfect.
+     */
+
+    // Re-calculating transform based on 100vh height for #main and 100vw-60px width
+    // New width will be 100vh, new height will be 100vw - 60px.
+    // The top-left corner after rotation (pivot top left) will be at original (0,0).
+    // The content will be rotated, and its new 'bottom' will be at the original 'left' edge.
+    // We need to move it up.
+    transform: rotate(90deg) translateX(0) translateY(-100%);
+    // The translateX(0) is to keep it at the left.
+    // translateY(-100%) refers to 100% of its OWN height AFTER rotation, which is original width.
+    // So if #main was 300px wide, after rotation it's 300px high. -100% means -300px.
+    // THIS IS TRICKY AND REQUIRES PRECISE CALCULATION/ADJUSTMENT.
+    // Let's use viewport units to be more robust.
+
+    transform: rotate(90deg) translateY(-100vh); /* Moves up by its original height (which becomes new width) */
+    width: 100vh; /* New effective width after rotation is original height */
+    height: calc(100vw - 60px); /* New effective height after rotation is original width */
+    // Ensure content inside the card respects the new dimensions.
+    .jh-card {
+        // May need to adjust font sizes or padding within the card after rotation.
+        padding: 10px; // Smaller padding for rotated content
+        overflow: auto; // Allow internal scrolling if content is long/wide
+    }
+  }
+
+  /* Optional: Hide the entire main-container and show a message if this layout is deemed too complex/unreadable */
+  /*
+  .main-container {
+      display: none;
+  }
+  .rotate-message {
+      display: flex; // Show this message if you decide to not rotate the main content
+  }
+  */
+}
+
+/* ------------------------------------------- */
+/* Landscape Mode (for mobile or tablets) */
+/* ------------------------------------------- */
+
+@media screen and (max-width: 992px) and (orientation: landscape) {
+  .main-container {
+    flex-direction: row; /* Regular side-by-side layout */
+    position: static; /* Remove fixed positioning */
+    width: auto;
+    height: auto;
+  }
+  .sidebar {
+    order: 0; /* Reset order to default (left side) */
+    width: 150px; /* More width for landscape sidebar */
+    height: 100vh;
+    .sidebar-brand {
+      .sidebar-img { width: 50px; }
+    }
+    .sidebar-collapse-btn { display: block; } /* Show collapse button if used */
+    .navbar-nav {
+      .nav-item a {
+        flex-direction: row; /* Icons and text side-by-side again */
+        fa-icon { margin-right: 10px; margin-bottom: 0; }
+        .dropdown-item-span { font-size: 1em; } /* Reset font size */
+      }
+    }
+  }
+
+  #main {
+    order: 0; /* Reset order */
+    flex-grow: 1;
+    width: auto;
+    height: auto;
+    padding: 10px;
+    transform: none; /* Remove any rotation */
+    .jh-card {
+        padding: 15px;
+    }
+    .table-container { /* Ensure tables can scroll horizontally in landscape */
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+}
+
+/* Add specific styles for the dropdown within the rotated sidebar if needed */
+/* This can be very tricky as the dropdown will also be rotated if it's a child of the rotated element.
+   It's generally better to render dropdowns as overlays at the root of the body or use specific
+   Angular/Bootstrap dropdown components that handle positioning independently.
+*/
