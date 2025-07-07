@@ -40,7 +40,7 @@
     4200,
     3001,
     9000,
-    1234
+    9030
   ],
   // Use 'postCreateCommand' to run commands after the container is created.
   // "postCreateCommand": "java -version",

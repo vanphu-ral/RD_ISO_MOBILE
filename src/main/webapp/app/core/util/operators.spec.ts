@@ -12,7 +12,7 @@ describe('Operators Test', () => {
       expect(filterNaN(NaN)).toBe(0);
     });
     it('should return number for a number', () => {
-      expect(filterNaN(12345)).toBe(12345);
+      expect(filterNaN(90305)).toBe(90305);
     });
   });
 });

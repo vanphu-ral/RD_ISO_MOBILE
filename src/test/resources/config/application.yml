@@ -63,7 +63,7 @@ jhipster:
     name: 'isoApp'
   mail:
     from: ISO@localhost.com
-    base-url: http://127.0.0.1:1234
+    base-url: http://127.0.0.1:9030
   logging:
     # To test json console appender
     use-json-format: false

@@ -161,7 +161,7 @@ If you're on Windows, you should install [WSL](https://docs.microsoft.com/en-us/
 
 If you'd like to configure things manually through the Okta developer console, see the instructions below.
 
-First, you'll need to create a free developer account at <https://developer.okta.com/signup/>. After doing so, you'll get your own Okta domain, that has a name like `https://dev-123456.okta.com`.
+First, you'll need to create a free developer account at <https://developer.okta.com/signup/>. After doing so, you'll get your own Okta domain, that has a name like `https://dev-903056.okta.com`.
 
 Modify `src/main/resources/config/application.yml` to use your Okta settings.
 
@@ -181,7 +181,7 @@ spring:
 security:
 ```
 
-Create an OIDC App in Okta to get a `{clientId}` and `{clientSecret}`. To do this, log in to your Okta Developer account and navigate to **Applications** > **Add Application**. Click **Web** and click the **Next** button. Give the app a name you’ll remember, specify `http://localhost:1234` as a Base URI, and `http://localhost:1234/login/oauth2/code/oidc` as a Login Redirect URI. Click **Done**, then Edit and add `http://localhost:1234` as a Logout redirect URI. Copy and paste the client ID and secret into your `application.yml` file.
+Create an OIDC App in Okta to get a `{clientId}` and `{clientSecret}`. To do this, log in to your Okta Developer account and navigate to **Applications** > **Add Application**. Click **Web** and click the **Next** button. Give the app a name you’ll remember, specify `http://localhost:9030` as a Base URI, and `http://localhost:9030/login/oauth2/code/oidc` as a Login Redirect URI. Click **Done**, then Edit and add `http://localhost:9030` as a Logout redirect URI. Copy and paste the client ID and secret into your `application.yml` file.
 
 Create a `ROLE_ISO_ADMIN` and `ROLE_USER` group and add users into them. Modify e2e tests to use this account when running integration tests. You'll need to change credentials in `src/test/javascript/e2e/account/account.spec.ts` and `src/test/javascript/e2e/admin/administration.spec.ts`.
 
@@ -195,8 +195,8 @@ If you'd like to use [Auth0](https://auth0.com/) instead of Keycloak, follow the
 
 - Create a free developer account at <https://auth0.com/signup>. After successful sign-up, your account will be associated with a unique domain like `dev-xxx.us.auth0.com`
 - Create a new application of type `Regular Web Applications`. Switch to the `Settings` tab, and configure your application settings like:
-  - Allowed Callback URLs: `http://localhost:1234/login/oauth2/code/oidc`
-  - Allowed Logout URLs: `http://localhost:1234/`
+  - Allowed Callback URLs: `http://localhost:9030/login/oauth2/code/oidc`
+  - Allowed Logout URLs: `http://localhost:9030/`
 - Navigate to **User Management** > **Roles** and create new roles named `ROLE_ISO_ADMIN`, and `ROLE_USER`.
 - Navigate to **User Management** > **Users** and create a new user account. Click on the **Role** tab to assign roles to the newly created user account.
 - Navigate to **Auth Pipeline** > **Rules** and create a new Rule. Choose `Empty rule` template. Provide a meaningful name like `JHipster claims` and replace `Script` content with the following and Save.
@@ -266,7 +266,7 @@ To ensure everything worked, run:
 java -jar target/*.jar
 ```
 
-Then navigate to [http://localhost:1234](http://localhost:1234) in your browser.
+Then navigate to [http://localhost:9030](http://localhost:9030) in your browser.
 
 Refer to [Using JHipster in production][] for more details.
 

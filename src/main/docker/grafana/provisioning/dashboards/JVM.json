@@ -3759,8 +3759,8 @@
         "allFormat": "glob",
         "allValue": null,
         "current": {
-          "text": "localhost:1234",
-          "value": "localhost:1234"
+          "text": "localhost:9030",
+          "value": "localhost:9030"
         },
         "datasource": "Prometheus",
         "definition": "",

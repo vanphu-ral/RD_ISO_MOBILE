@@ -13,13 +13,13 @@ services:
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID=web_app
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET=web_app
     ports:
-      - 127.0.0.1:1234:1234
+      - 127.0.0.1:9030:9030
     healthcheck:
       test:
         - CMD
         - curl
         - -f
-        - http://localhost:1234/management/health
+        - http://localhost:9030/management/health
       interval: 5s
       timeout: 5s
       retries: 40

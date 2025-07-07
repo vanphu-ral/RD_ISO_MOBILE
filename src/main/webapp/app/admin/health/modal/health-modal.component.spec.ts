@@ -89,10 +89,10 @@ describe('HealthModalComponent', () => {
       };
 
       // WHEN
-      const result = comp.readableValue(1234);
+      const result = comp.readableValue(9030);
 
       // THEN
-      expect(result).toEqual('1234');
+      expect(result).toEqual('9030');
     });
   });
 
